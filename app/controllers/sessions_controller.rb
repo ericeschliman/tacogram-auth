@@ -3,6 +3,25 @@ class SessionsController < ApplicationController
   end
   
   def create
-    # TODO: authenticate user
-  end
+    @user = User.find_by({"email" => params["email"]})
+    if @user 
+        if BCrypt::Password.new(@user["password"]) == params["password"]
+            session["user_id"] = @user["id"]
+        flash["notice"] = "You logged in!"
+            redirect_to "/posts"    
+        else
+        flash["notice"] = "Access Denied."
+            redirect_to "/sessions/new"    
+        end
+    else
+        flash["notice"] = "Access Denied."
+        redirect_to "/sessions/new"
+    end
+end
+
+def destroy 
+  session["user_id"] = nil
+  flash["notice"] = "Goodbye."
+  redirect_to "/sessions/new"
+end
 end
